@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no" />
+		<style>
+			body {
+				margin: 0;
+			}
+			#main {
+				margin: 0;
+				position: relative;
+			}
+			#canvas-wrapper {
+				margin-top: 10px;
+				position: relative;
+			}
+			canvas {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			#top-bar {
+				margin-left: 300px;
+				position: relative;
+			}
+			#canvas-wrapper {
+				position: relative;
+			}
+
+			#scatter-gl-container {
+				position: relative;
+				display: inline-block;
+				vertical-align: top;
+			}
+			body {
+				background-color: #848484;
+			}
+		</style>
+		<title>Video File Pose Detection and Analysis</title>
+	</head>
+	<body>
+		<h1 style="margin-top: 7vh">Video File Pose Detection and Analysis</h1>
+		<div id="stats"></div>
+		<div id="results"></div>
+		<div id="main">
+			<div class="container">
+				<div id="top-bar">
+					<label for="videofile">Upload a video file:</label>
+					<input type="file" id="videofile" name="video" accept="video/*" />
+					<button id="submit">Run</button>
+				</div>
+			</div>
+			<div class="container" id="canvas-wrapper">
+				<canvas id="output"></canvas>
+				<video id="video">
+					<source id="currentVID" src="" type="video/mp4" />
+				</video>
+			</div>
+			<div class="container">
+				<span id="status"></span>
+			</div>
+		</div>
+		<div id="scatter-gl-container"></div>
+	</body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+	<script src="src/index.js"></script>
+	<script>
+		const video = document.getElementById("video");
+		const inputVideo = document.getElementById("inputVideo");
+		const resultsDiv = document.getElementById("results");
+		let model = null;
+		let last_standard_deviation = 0;
+		let analyzing = false;
+
+		async function loadModel() {
+			model = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, {
+				runtime: "mediapipe",
+				modelType: "full",
+				solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/pose",
+			});
+		}
+
+		function loadVideoFile(input) {
+			if (input.files && input.files[0]) {
+				const file = input.files[0];
+				const url = URL.createObjectURL(file);
+				video.src = url;
+				video.load();
+				video.onloadeddata = async () => {
+					await video.play();
+					analyzeVideo();
+				};
+			}
+		}
+
+		async function analyzeVideo() {
+			if (model === null) {
+				await loadModel();
+			}
+			analyzing = true;
+			captureFrameAndDetectPose();
+		}
+
+		async function captureFrameAndDetectPose() {
+			if (!analyzing || video.ended) return;
+
+			const poses = await model.estimatePoses(video, {
+				flipHorizontal: false,
+			});
+
+			processNewPoseData(poses);
+			requestAnimationFrame(captureFrameAndDetectPose);
+		}
+
+		async function init() {
+			await loadModel();
+		}
+
+		init();
+	</script>
+</html>
