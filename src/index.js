@@ -199,7 +199,8 @@ async function renderResult() {
 	// apeend the new log to the logs array
 	logs.push(log);
 	// write the logs array to the local storage
-	localStorage.setItem("log", JSON.stringify(logs)); */
+	localStorage.setItem("log", JSON.stringify(logs));
+	*/
 
 	endEstimatePosesStats();
 

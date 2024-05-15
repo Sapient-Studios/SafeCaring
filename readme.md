@@ -54,6 +54,26 @@ Build Dependencies: Compiles the necessary dependencies.
 Link Core: Symlinks the local TensorFlow Core package for development.
 Link WebGL: Symlinks the local TensorFlow WebGL backend package for development.
 
-# Dependencies
+## Dependencies
 
 This project uses the following main dependencies:
+
+- `@mediapipe/pose`
+- `@tensorflow-models/pose-detection`
+- TensorFlow.js modules
+  - `fs-extra` for enhanced file system operations
+  - `scatter-gl` for graphical display of pose data
+
+## Dev Dependencies
+
+Includes necessary Babel and Parcel configurations for building and running the application:
+
+- `@babel/core`
+- `@babel/preset-env`
+- `parcel-bundler`
+- `eslint` with Google's ESLint configuration for code linting
+  Other utilities like yalc for managing local package dependencies.
+
+## Browser Compatibility
+
+This demo does not support the Crypto API in the browser environment.
